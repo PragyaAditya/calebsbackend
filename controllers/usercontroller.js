@@ -47,15 +47,37 @@ exports.updateUser = async (req, res) => {
 
     res.status(500).json({ error: 'Server error' });
   }
+};
+
 // GET /api/users/:id
 exports.getUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id); // Mongoose query
+    const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ error: 'User not found' });
     res.json(user);
   } catch (err) {
     res.status(400).json({ error: 'Invalid ID format' });
   }
 };
-  
+
+
+exports.deleteUserById = async (req, res) => {
+  const { id } = req.params;
+
+  // ✅ Check if ID is valid
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ error: 'Invalid user ID' });
+  }
+
+  try {
+    const deletedUser = await User.findByIdAndDelete(id);
+
+    if (!deletedUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({ message: 'User deleted successfully', user: deletedUser });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
 };
